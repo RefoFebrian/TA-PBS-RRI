@@ -1,0 +1,112 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String    @id @default(uuid()) @db.VarChar(50)
+  email            String?   @unique
+  username         String    @db.VarChar(20)
+  password         String    @db.VarChar(90)
+  resetToken       String?   @db.VarChar(255)
+  resetTokenExpiry DateTime?
+  role             String    @db.VarChar(10) // "pembeli" atau "penjual"
+  createdAt        DateTime  @default(now())
+
+  // Relasi
+  pesanan          Pesanan[]
+  warung           Warung[] // User dengan role "penjual" bisa punya banyak warung
+}
+
+model Warung {
+  id        Int      @id @default(autoincrement())
+  nama      String
+  alamat    String
+  image     String
+  no_telp   String
+  jam_buka  String
+  jam_tutup String
+  createdAt DateTime @default(now())
+
+  // Relasi ke penjual (User)
+  penjualId String
+  penjual   User?     @relation(fields: [penjualId], references: [id])
+
+  // Relasi ke menu (1 warung punya banyak menu)
+  menu      Menu[]
+}
+
+model Menu {
+  id         Int      @id @default(autoincrement())
+  nama_menu  String
+  harga      Int
+  gambar     String
+  tersedia   Boolean
+  createdAt  DateTime @default(now())
+
+  // Relasi balik ke Warung
+  warungId   Int
+  warung     Warung   @relation(fields: [warungId], references: [id])
+
+  // Relasi ke detail pesanan
+  detailPesanan DetailPesanan[]
+}
+
+model Pesanan {
+  id            Int      @id @default(autoincrement())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  waktu_ambil   DateTime
+  waktu_pesan   DateTime
+  total_harga   Int
+  status        String?
+  createdAt     DateTime @default(now())
+
+  // Relasi ke menu melalui DetailPesanan
+  detailPesanan DetailPesanan[]   
+  transaction   Transaction?
+}
+
+model DetailPesanan {
+  id        Int     @id @default(autoincrement())
+  pesananId Int
+  menuId    Int
+  jumlah    Int
+
+  pesanan   Pesanan @relation(fields: [pesananId], references: [id])
+  menu      Menu    @relation(fields: [menuId], references: [id])
+}
+
+
+
+model Transaction {
+  id           String   @id @default(uuid())
+  orderId      String   @unique
+  amount       Int
+  status       String   @default("pending")
+  paymentType  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  snapToken     String?
+  midtransId    String?
+
+
+  pesananId    Int?     @unique // <-- INI YANG DIPERBAIKI
+  pesanan      Pesanan?    @relation(fields: [pesananId], references: [id])
+  
+}
+
+
+// enum OrderStatus {
+//   DRAFT 
+//   PAID
+//   PROCESSING
+//   COMPLETED
+//   CANCELLED
+// }
