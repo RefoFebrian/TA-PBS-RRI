@@ -3,6 +3,11 @@
 First, run the development server:
 Masuk folder Backend
 
+```
+ tambahkan file .env terlebih dahulu
+
+```
+
 ```bash
 cd Backend
 ```
