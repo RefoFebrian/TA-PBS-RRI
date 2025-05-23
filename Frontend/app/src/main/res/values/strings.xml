@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LeleGo</string>
     <string name="halo_greeting">Halo,</string>
+    <string name="food_order_greeting">Ingin Makan Apa \nHari Ini?</string>
 </resources>
