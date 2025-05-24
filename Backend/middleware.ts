@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
 
     // Atur origin yang diizinkan (sesuaikan dengan kebutuhan)
     const allowedOrigins = [
-      "http://localhost:3000",
+      "http://localhost:3003",
       "http://pecel-lele-connect.vercel.app/",
     ];
 

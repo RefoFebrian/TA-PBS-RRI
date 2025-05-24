@@ -1,20 +1,21 @@
 import { prisma } from "@/app/api/bridgePrisma";
 import { compare } from "bcrypt-ts";
 import { NextRequest, NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+import { corsHeaders } from "@/lib/cors";
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 export const POST = async (req: NextRequest) => {
   try {
-    // Ambil Input Username dan Password dari request
+    // Tangkap username dan password dari request
     const { username, password } = await req.json();
 
-    // Cek apakah username dan password ada
+    // Cari user berdasarkan username
     const userFound = await prisma.user.findFirst({
-      where: {
-        username: username,
-      },
+      where: { username },
     });
 
-    // cek apakah ada usernamenya
     if (!userFound) {
       return NextResponse.json(
         {
@@ -24,15 +25,12 @@ export const POST = async (req: NextRequest) => {
             status: 404,
           },
         },
-        { status: 404 }
+        { status: 404, headers: corsHeaders }
       );
     }
 
-    // ambil hash password dari database
-    const hash = userFound.password;
-
-    // cek apakah passwordnya sesuai
-    const isValidPass = await compare(password, hash);
+    // Bandingkan password yang dikirim dengan hash password di DB
+    const isValidPass = await compare(password, userFound.password);
 
     if (!isValidPass) {
       return NextResponse.json(
@@ -43,15 +41,35 @@ export const POST = async (req: NextRequest) => {
             status: 401,
           },
         },
-        { status: 401 }
+        { status: 401, headers: corsHeaders }
       );
     }
 
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: userFound.id,
+        username: userFound.username,
+      },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    // Kirim response dengan token
     return NextResponse.json(
-      { metadata: { error: 0, message: "Login successful", status: 200 } },
+      {
+        metadata: {
+          error: 0,
+          message: "Login successful",
+          status: 200,
+        },
+        data: {
+          token,
+        },
+      },
       { status: 200 }
     );
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
       {
@@ -61,7 +79,7 @@ export const POST = async (req: NextRequest) => {
           status: 500,
         },
       },
-      { status: 500 }
+      { status: 500, headers: corsHeaders }
     );
   }
 };
