@@ -4,4 +4,6 @@
     <string name="food_order_greeting">Ingin Makan Apa \nHari Ini?</string>
     <string name="login_greeting">Selamat Datang</string>
     <string name="login_sub_greeting">Silahkan login terlebih dahulu</string>
+    <string name="register_greeting">Daftar Akun</string>
+    <string name="register_sub_greeting">Silahkan lengkapi data dibawah ini</string>
 </resources>
