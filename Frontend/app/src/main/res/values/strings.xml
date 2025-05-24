@@ -2,4 +2,6 @@
     <string name="app_name">LeleGo</string>
     <string name="halo_greeting">Halo,</string>
     <string name="food_order_greeting">Ingin Makan Apa \nHari Ini?</string>
+    <string name="login_greeting">Selamat Datang</string>
+    <string name="login_sub_greeting">Silahkan login terlebih dahulu</string>
 </resources>

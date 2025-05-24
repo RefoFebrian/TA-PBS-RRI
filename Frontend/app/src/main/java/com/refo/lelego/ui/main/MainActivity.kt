@@ -1,4 +1,4 @@
-package com.refo.lelego.ui
+package com.refo.lelego.ui.main
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
