@@ -16,7 +16,7 @@ export default function LoginPage() {
   setMessage('')
 
   try {
-    const res = await fetch('http://pecel-lele-connect.vercel.app/api/auth/login', {
+    const res = await fetch('https://pecel-lele-connect.vercel.app/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
