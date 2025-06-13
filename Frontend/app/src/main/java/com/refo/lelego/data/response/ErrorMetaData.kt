@@ -2,9 +2,13 @@ package com.refo.lelego.data.response
 
 import com.google.gson.annotations.SerializedName
 
-data class ErrorResponse(
+data class ErrorMetadata(
     @field:SerializedName("error")
-    val error: Int? = 1,
+    val error: Int? = null,
+
     @field:SerializedName("message")
-    val message: String
+    val message: String,
+
+    @field:SerializedName("status")
+    val status: Int? = null
 )
