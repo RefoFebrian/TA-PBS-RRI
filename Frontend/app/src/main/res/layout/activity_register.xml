@@ -64,13 +64,14 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="32dp"
         android:hint="Email"
+        app:errorEnabled="true"
         app:boxStrokeColor="#8BC34A"
         app:hintTextColor="#8BC34A"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_register_subtitle">
 
-        <com.refo.lelego.ui.MyEditEmail
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_register_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -87,6 +88,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:hint="Username"
+        app:errorEnabled="true"
         app:boxStrokeColor="#8BC34A"
         app:hintTextColor="#8BC34A"
         app:layout_constraintEnd_toEndOf="parent"
@@ -110,6 +112,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:hint="Password"
+        app:errorEnabled="true"
         app:boxStrokeColor="#8BC34A"
         app:hintTextColor="#8BC34A"
         app:layout_constraintEnd_toEndOf="parent"
@@ -135,6 +138,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
         android:hint="Konfirmasi Password"
+        app:errorEnabled="true"
         app:boxStrokeColor="#8BC34A"
         app:hintTextColor="#8BC34A"
         app:layout_constraintEnd_toEndOf="parent"
