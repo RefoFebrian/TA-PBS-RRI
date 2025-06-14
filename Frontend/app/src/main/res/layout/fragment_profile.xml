@@ -7,28 +7,18 @@
     android:background="#F5F5F5"
     tools:context=".ui.profile.ProfileFragment">
 
-    <TextView
-        android:id="@+id/tv_profile_description"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Lihat dan edit detail personal."
-        android:textColor="#757575"
-        android:textSize="14sp"
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_profile_picture"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/ic_default_profile_picture"
+        app:civ_border_color="#FFFFFF"
+        app:civ_border_width="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp" />
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/iv_profile_picture"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="32dp"
-            android:src="@drawable/ic_default_profile_picture"
-            app:civ_border_color="#FFFFFF"
-            app:civ_border_width="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_profile_description" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_label_full_name"
