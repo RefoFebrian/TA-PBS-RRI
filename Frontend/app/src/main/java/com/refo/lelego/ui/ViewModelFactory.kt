@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.refo.lelego.data.UserRepository
 import com.refo.lelego.data.di.Injection
+import com.refo.lelego.ui.home.HomeViewModel
 import com.refo.lelego.ui.profile.ProfileViewModel
 import com.refo.lelego.ui.register.RegisterViewModel
 
@@ -19,6 +20,10 @@ class ViewModelFactory(private val repository: UserRepository) :
 
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
                 ProfileViewModel(repository) as T
+            }
+
+            modelClass.isAssignableFrom(HomeViewModel::class.java) -> {
+                HomeViewModel(repository) as T
             }
 
             else -> throw IllegalArgumentException("Unknown ViewModel class:" + modelClass.name)
