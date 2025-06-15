@@ -1,5 +1,6 @@
 package com.refo.lelego.data.retrofit
 
+import com.refo.lelego.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -23,7 +24,7 @@ class ApiConfig {
                 .addInterceptor(authInterceptor)
                 .build()
             val retrofit = Retrofit.Builder()
-                .baseUrl("https://pecel-lele-connect.vercel.app/")
+                .baseUrl(BuildConfig.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build()

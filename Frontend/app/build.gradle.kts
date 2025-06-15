@@ -18,7 +18,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Gunakan IP 10.0.2.2 untuk emulator, atau IP lokal komputer Anda untuk perangkat fisik
+            buildConfigField("String", "BASE_URL", "\"http://192.168.1.8:3000\"")// sesuaikan dengan base url "network" di terminal saat npm run dev
+        }
         release {
+            buildConfigField("String", "BASE_URL", "\"https://pecel-lele-connect.app/\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
