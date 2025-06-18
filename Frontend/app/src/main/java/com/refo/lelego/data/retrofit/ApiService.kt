@@ -1,5 +1,7 @@
 package com.refo.lelego.data.retrofit
 
+import com.refo.lelego.data.response.LoginRequest
+import com.refo.lelego.data.response.LoginResponse
 import com.refo.lelego.data.response.RegisterRequest
 import com.refo.lelego.data.response.RegisterResponse
 import retrofit2.http.Body
@@ -10,4 +12,9 @@ interface ApiService {
     suspend fun register(
         @Body request: RegisterRequest
     ): RegisterResponse
+
+    @POST("/api/auth/login")
+    suspend fun login(
+        @Body request: LoginRequest
+    ): LoginResponse
 }

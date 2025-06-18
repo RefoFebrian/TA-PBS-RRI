@@ -62,7 +62,7 @@ class RegisterActivity : AppCompatActivity() {
             val email = binding.etRegisterEmail.text.toString().trim()
             val username = binding.etRegisterUsername.text.toString().trim()
             val password = binding.etRegisterPassword.text.toString().trim()
-            val confirmPassword = binding.etRegisterConfirmPassword.text.toString().trim() // Meskipun tidak digunakan di register API, ini sudah divalidasi
+            val confirmPassword = binding.etRegisterConfirmPassword.text.toString().trim()
             val role = "pembeli"
 
             viewModel.register(email, username, password, role).observe(this) { result ->

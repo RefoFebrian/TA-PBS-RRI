@@ -10,6 +10,10 @@ import com.refo.lelego.data.response.RegisterResponse
 import com.refo.lelego.data.retrofit.ApiService
 import retrofit2.HttpException
 import android.util.Log
+import com.refo.lelego.data.pref.UserModel
+import com.refo.lelego.data.response.LoginRequest
+import com.refo.lelego.data.response.LoginResponse
+import kotlinx.coroutines.flow.Flow
 
 class UserRepository(
     private val apiService: ApiService,
@@ -69,6 +73,68 @@ class UserRepository(
             emit(ResultAnalyze.Error(e.message ?: "An unexpected error occurred. Please check your connection."))
         }
     }
+
+    fun signin(
+        username: String,
+        password: String
+    ): LiveData<ResultAnalyze<LoginResponse>> = liveData {
+        emit(ResultAnalyze.Loading)
+        try {
+            val loginRequest = LoginRequest(username, password)
+            val response = apiService.login(loginRequest)
+            emit(ResultAnalyze.Success(response))
+
+        } catch (e: HttpException) {
+            val httpCode = e.code()
+            var specificMessage: String? = null
+
+            try {
+                val errorJsonString = e.response()?.errorBody()?.string()
+                if (errorJsonString != null) {
+                    Log.d("UserRepository", "Error JSON from HttpException: $errorJsonString")
+                    val fullErrorResponse = Gson().fromJson(errorJsonString, FullErrorResponse::class.java)
+
+                    if (fullErrorResponse?.metadata != null) {
+                        specificMessage = fullErrorResponse.metadata.message
+                        if (specificMessage.isNullOrEmpty() && fullErrorResponse.metadata.error != null) {
+                            specificMessage = "Error code from JSON metadata: ${fullErrorResponse.metadata.error}"
+                        }
+                    } else {
+                        Log.w("UserRepository", "Parsed FullErrorResponse is null or its metadata is null from error JSON.")
+                    }
+                } else {
+                    Log.w("UserRepository", "HttpException error body is null for code $httpCode.")
+                }
+            } catch (jsonException: Exception) {
+                Log.e("UserRepository", "Failed to parse error JSON for code $httpCode: ${jsonException.message}", jsonException)
+            }
+
+            val finalErrorMessage = if (!specificMessage.isNullOrBlank()) {
+                specificMessage
+            } else {
+                val genericHttpError = when (httpCode) {
+                    409 -> "Conflict"
+                    in 500..599 -> "Server Error"
+                    else -> e.message().takeIf { !it.isNullOrBlank() }
+                }
+                "Error $httpCode: ${genericHttpError ?: "Please try again."}"
+            }
+            emit(ResultAnalyze.Error(finalErrorMessage))
+
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Signup failed with generic exception: ${e.javaClass.simpleName}", e)
+            emit(ResultAnalyze.Error(e.message ?: "An unexpected error occurred. Please check your connection."))
+        }
+    }
+
+    suspend fun saveSession(user: UserModel) {
+        userPreferences.saveSession(user)
+    }
+
+    fun getSession(): Flow<UserModel> {
+        return userPreferences.getSession()
+    }
+
 
     companion object {
         private var INSTANCE: UserRepository? = null

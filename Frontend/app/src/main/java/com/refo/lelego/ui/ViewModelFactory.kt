@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.refo.lelego.data.UserRepository
 import com.refo.lelego.data.di.Injection
 import com.refo.lelego.ui.home.HomeViewModel
+import com.refo.lelego.ui.login.LoginViewModel
+import com.refo.lelego.ui.main.MainViewModel
 import com.refo.lelego.ui.profile.ProfileViewModel
 import com.refo.lelego.ui.register.RegisterViewModel
 
@@ -16,6 +18,14 @@ class ViewModelFactory(private val repository: UserRepository) :
         return when {
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> {
                 RegisterViewModel(repository) as T
+            }
+
+            modelClass.isAssignableFrom(LoginViewModel::class.java) -> {
+                LoginViewModel(repository) as T
+            }
+
+            modelClass.isAssignableFrom(MainViewModel::class.java) -> {
+                MainViewModel(repository) as T
             }
 
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> {
