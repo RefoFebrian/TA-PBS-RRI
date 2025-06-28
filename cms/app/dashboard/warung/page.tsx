@@ -35,7 +35,7 @@ export default function WarungPage() {
           console.log("RESPON API:", data)
 
           if (Array.isArray(data.data)) {
-            setWarungs(data.data) // ✅ ambil array dari key "data"
+            setWarungs(data.data) //  ambil array dari key "data"
           } else {
             setError("Format data API tidak sesuai")
           }
