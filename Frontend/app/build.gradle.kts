@@ -69,4 +69,6 @@ dependencies {
     implementation (libs.androidx.activity.ktx)
 
     implementation (libs.circleimageview)
+
+    implementation(libs.androidx.paging.runtime.ktx)
 }
