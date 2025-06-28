@@ -10,14 +10,10 @@ import com.refo.lelego.data.response.RegisterResponse
 import com.refo.lelego.data.retrofit.ApiService
 import retrofit2.HttpException
 import android.util.Log
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.liveData
 import com.refo.lelego.data.pref.UserModel
-import com.refo.lelego.data.response.DataItem
 import com.refo.lelego.data.response.LoginRequest
 import com.refo.lelego.data.response.LoginResponse
+import com.refo.lelego.data.response.WarungDetailData
 import kotlinx.coroutines.flow.Flow
 
 class UserRepository(
@@ -132,7 +128,7 @@ class UserRepository(
         }
     }
 
-    fun getWarungAll(): LiveData<ResultAnalyze<List<DataItem>>> = liveData {
+    fun getWarungAll(): LiveData<ResultAnalyze<List<WarungDetailData>>> = liveData {
         emit(ResultAnalyze.Loading)
         try {
             val response = apiService.getWarungNoPaginate()
@@ -140,6 +136,25 @@ class UserRepository(
         } catch (e: Exception) {
             Log.e("UserRepository", "Failed to fetch all warungs: ${e.message}", e)
             emit(ResultAnalyze.Error(e.message ?: "Gagal mengambil semua data warung."))
+        }
+    }
+
+    fun getWarungDetail(id: Int): LiveData<ResultAnalyze<WarungDetailData>> = liveData {
+        emit(ResultAnalyze.Loading)
+        try {
+            val response = apiService.getWarungById(id)
+            if (response.data != null) {
+                emit(ResultAnalyze.Success(response.data))
+            } else {
+                emit(ResultAnalyze.Error(response.metadata?.message ?: "Data warung tidak ditemukan"))
+            }
+        } catch (e: HttpException) {
+            val errorMessage = e.response()?.errorBody()?.string() ?: "Terjadi kesalahan HTTP"
+            Log.e("UserRepository", "HTTP Error fetching warung detail: $errorMessage", e)
+            emit(ResultAnalyze.Error(errorMessage))
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Error fetching warung detail: ${e.message}", e)
+            emit(ResultAnalyze.Error(e.message ?: "Gagal mengambil detail warung."))
         }
     }
 

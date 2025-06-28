@@ -1,19 +1,23 @@
 package com.refo.lelego.data.adapter
 
-
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.refo.lelego.data.response.DataItem
+import com.refo.lelego.data.response.WarungDetailData
 import com.refo.lelego.databinding.ItemListWarungBinding
 
 class ListWarungAdapter : RecyclerView.Adapter<ListWarungAdapter.MyViewHolder>() {
 
-    private val listWarung = ArrayList<DataItem>()
+    private val listWarung = ArrayList<WarungDetailData>()
+    private var onItemClickCallback: OnItemClickCallback? = null
 
-    fun submitList(newList: List<DataItem>) {
+    fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
+        this.onItemClickCallback = onItemClickCallback
+    }
+
+    fun submitList(newList: List<WarungDetailData>) {
         val diffResult = DiffUtil.calculateDiff(WarungDiffCallback(this.listWarung, newList))
         this.listWarung.clear()
         this.listWarung.addAll(newList)
@@ -28,12 +32,16 @@ class ListWarungAdapter : RecyclerView.Adapter<ListWarungAdapter.MyViewHolder>()
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val warung = listWarung[position]
         holder.bind(warung)
+
+        holder.itemView.setOnClickListener {
+            onItemClickCallback?.onItemClicked(warung)
+        }
     }
 
     override fun getItemCount(): Int = listWarung.size
 
     class MyViewHolder(private val binding: ItemListWarungBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: DataItem) {
+        fun bind(item: WarungDetailData) {
             binding.tvItemNamaWarung.text = item.nama
             binding.tvItemAlamatWarung.text = item.alamat
             binding.tvItemJamWarung.text = "${item.jamBuka} - ${item.jamTutup}"
@@ -41,15 +49,12 @@ class ListWarungAdapter : RecyclerView.Adapter<ListWarungAdapter.MyViewHolder>()
             Glide.with(itemView.context)
                 .load(item.image)
                 .into(binding.ivItemPhoto)
-
-            itemView.setOnClickListener {
-            }
         }
     }
 
     class WarungDiffCallback(
-        private val oldList: List<DataItem>,
-        private val newList: List<DataItem>
+        private val oldList: List<WarungDetailData>,
+        private val newList: List<WarungDetailData>
     ) : DiffUtil.Callback() {
         override fun getOldListSize(): Int = oldList.size
         override fun getNewListSize(): Int = newList.size
@@ -61,5 +66,9 @@ class ListWarungAdapter : RecyclerView.Adapter<ListWarungAdapter.MyViewHolder>()
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             return oldList[oldItemPosition] == newList[newItemPosition]
         }
+    }
+
+    interface OnItemClickCallback {
+        fun onItemClicked(data: WarungDetailData)
     }
 }
