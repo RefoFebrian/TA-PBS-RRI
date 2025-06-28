@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 export default function TambahWarungPage() {
   const router = useRouter();
-
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     penjualId: "",
     nama: "",
@@ -16,33 +16,31 @@ export default function TambahWarungPage() {
     no_telp: "",
   });
   const [image, setImage] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  // ⬇️ Ambil user info dari token di localStorage
+  // Ambil user login dari localStorage token
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
       try {
-        const res = await fetch("https://pecel-lele-connect.vercel.app/api/auth/me", {
+        const res = await fetch("/api/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
+        if (!res.ok) throw new Error("Gagal ambil info user");
         const data = await res.json();
+
         if (data.user) {
-          setForm((prev) => ({
-            ...prev,
-            penjualId: data.user.id, // Isi otomatis penjualId
-          }));
+          setForm((prev) => ({ ...prev, penjualId: data.user.id }));
         } else {
           toast.error("Gagal mendapatkan data pengguna");
         }
-      } catch (err) {
-        console.error("Error ambil user:", err);
-        toast.error("Tidak bisa mengambil info pengguna");
+      } catch (error) {
+        console.error(error);
+        toast.error("Gagal mengambil info pengguna");
       }
     };
 
@@ -73,7 +71,7 @@ export default function TambahWarungPage() {
       }
       if (image) formData.append("image", image);
 
-      const res = await fetch("https://pecel-lele-connect.vercel.app/api/warung", {
+      const res = await fetch("/api/warung", {
         method: "POST",
         body: formData,
       });
@@ -81,22 +79,20 @@ export default function TambahWarungPage() {
       const contentType = res.headers.get("content-type");
       if (!res.ok || !contentType?.includes("application/json")) {
         const text = await res.text();
-        toast.error("Gagal mengirim: " + text.slice(0, 50));
-        return;
+        throw new Error("Response bukan JSON: " + text);
       }
 
       const result = await res.json();
-      console.log("RESPON BACKEND:", result);
 
       if (result.metadata.error === 0) {
-        toast.success(result.metadata.message || "Warung berhasil dibuat!");
+        toast.success("Warung berhasil ditambahkan");
         router.push("/dashboard/warung");
       } else {
         toast.error(result.metadata.message || "Gagal menambahkan warung");
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Terjadi kesalahan saat mengirim data");
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Gagal mengirim data");
     } finally {
       setLoading(false);
     }
@@ -107,7 +103,6 @@ export default function TambahWarungPage() {
       <h1 className="text-xl font-bold mb-4">Tambah Warung</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* penjualId disembunyikan dari input */}
         <input type="hidden" name="penjualId" value={form.penjualId} />
 
         <input
