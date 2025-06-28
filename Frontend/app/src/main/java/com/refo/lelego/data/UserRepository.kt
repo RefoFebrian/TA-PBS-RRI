@@ -151,6 +151,9 @@ class UserRepository(
         return userPreferences.getSession()
     }
 
+    suspend fun logout() {
+        userPreferences.logout()
+    }
 
     companion object {
         private var INSTANCE: UserRepository? = null

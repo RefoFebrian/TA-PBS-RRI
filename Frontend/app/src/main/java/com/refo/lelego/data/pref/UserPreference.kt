@@ -26,8 +26,8 @@ class UserPreferences private constructor(private val dataStore: DataStore<Prefe
     fun getSession(): Flow<UserModel> {
         return dataStore.data.map { preferences ->
             UserModel(
-                preferences[TOKEN_KEY] ?: "",
                 preferences[USERNAME_KEY] ?: "",
+                preferences[TOKEN_KEY] ?: "",
                 preferences[PASSWORD_KEY] ?: "",
                 preferences[IS_LOGIN] ?: false
             )
