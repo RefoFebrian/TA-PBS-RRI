@@ -10,7 +10,12 @@ import com.refo.lelego.data.response.RegisterResponse
 import com.refo.lelego.data.retrofit.ApiService
 import retrofit2.HttpException
 import android.util.Log
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.refo.lelego.data.pref.UserModel
+import com.refo.lelego.data.response.DataItem
 import com.refo.lelego.data.response.LoginRequest
 import com.refo.lelego.data.response.LoginResponse
 import kotlinx.coroutines.flow.Flow
@@ -124,6 +129,17 @@ class UserRepository(
         } catch (e: Exception) {
             Log.e("UserRepository", "Signup failed with generic exception: ${e.javaClass.simpleName}", e)
             emit(ResultAnalyze.Error(e.message ?: "An unexpected error occurred. Please check your connection."))
+        }
+    }
+
+    fun getWarungAll(): LiveData<ResultAnalyze<List<DataItem>>> = liveData {
+        emit(ResultAnalyze.Loading)
+        try {
+            val response = apiService.getWarungNoPaginate()
+            emit(ResultAnalyze.Success(response.data))
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Failed to fetch all warungs: ${e.message}", e)
+            emit(ResultAnalyze.Error(e.message ?: "Gagal mengambil semua data warung."))
         }
     }
 
