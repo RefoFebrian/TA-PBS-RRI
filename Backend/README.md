@@ -1,6 +1,6 @@
 
 ## Dokumentasi POSTMAN
-[https://github.com/RefoFebrian/TA-PBS-RRI/edit/master/Backend/README.md](https://documenter.getpostman.com/view/43261593/2sB2xFfno5)
+https://documenter.getpostman.com/view/43261593/2sB2xFfno5
 
 ## Getting Started
 First, run the development server:
