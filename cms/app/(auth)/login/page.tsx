@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
@@ -9,40 +9,55 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [checking, setChecking] = useState(true) // untuk menghindari flicker
+
+  // Cegah user yang sudah login untuk kembali ke halaman login
+  useEffect(() => {
+    const tokenExists =
+      localStorage.getItem('token') ||
+      document.cookie.split('; ').some(cookie => cookie.startsWith('token='))
+
+    if (tokenExists) {
+      router.push('/dashboard')
+    } else {
+      setChecking(false) // hanya tampilkan login jika tidak login
+    }
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
-  e.preventDefault()
-  setLoading(true)
-  setMessage('')
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
 
-  try {
-    const res = await fetch('https://pecel-lele-connect.vercel.app/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    })
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
 
-    const data = await res.json()
-    console.log('Response data:', data)
+      const data = await res.json()
+      console.log('Response data:', data)
 
-    if (!res.ok) throw new Error(data.metadata?.message || 'Login gagal')
+      if (!res.ok) throw new Error(data.metadata?.message || 'Login gagal')
 
-    // Simpan token ke cookie
-    document.cookie = `token=${data.data.token}; path=/; max-age=86400`
+      // Simpan token ke cookie (manual)
+      document.cookie = `token=${data.data.token}; path=/; max-age=86400`
 
-    // Optional: tetap simpan di localStorage juga
-    localStorage.setItem('token', data.data.token)
+      // Optional: juga simpan ke localStorage
+      localStorage.setItem('token', data.data.token)
 
-    // Redirect
-    router.push('/dashboard')
-  } catch (err: any) {
-    setMessage(err.message || 'Terjadi kesalahan')
-  } finally {
-    setLoading(false)
+      // Redirect ke dashboard
+      router.push('/dashboard')
+    } catch (err: any) {
+      setMessage(err.message || 'Terjadi kesalahan')
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
-
+  // Jangan tampilkan apapun sampai pengecekan selesai
+  if (checking) return null
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -52,7 +67,7 @@ export default function LoginPage() {
         <input
           type="text"
           placeholder="Username"
-          className="w-full mb-3 p-2 border rounded"
+          className="w-full mb-3 p-2 border border-black rounded"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -61,7 +76,7 @@ export default function LoginPage() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full mb-3 p-2 border rounded"
+          className="w-full mb-3 p-2 border border-black rounded"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -79,10 +94,12 @@ export default function LoginPage() {
 
         <div className="mt-4 text-sm text-center">
           <p>
-            Belum punya akun? <a href="/register" className="text-blue-600 underline">Daftar</a>
+            Belum punya akun?{' '}
+            <a href="/register" className="text-blue-600 underline">Daftar</a>
           </p>
           <p>
-            Lupa password? <a href="/forgot-password" className="text-blue-600 underline">Reset</a>
+            Lupa password?{' '}
+            <a href="/forgot-password" className="text-blue-600 underline">Reset</a>
           </p>
         </div>
       </form>
