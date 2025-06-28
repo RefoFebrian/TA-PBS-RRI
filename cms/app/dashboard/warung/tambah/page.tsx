@@ -25,7 +25,7 @@ export default function TambahWarungPage() {
       if (!token) return;
 
       try {
-        const res = await fetch("http://localhost:3000/api/auth/me", {
+        const res = await fetch("https://pecel-lele-connect.vercel.app/api/auth/me", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -73,7 +73,7 @@ export default function TambahWarungPage() {
       }
       if (image) formData.append("image", image);
 
-      const res = await fetch("http://localhost:3000/api/warung", {
+      const res = await fetch("https://pecel-lele-connect.vercel.app/api/warung", {
         method: "POST",
         body: formData,
       });
