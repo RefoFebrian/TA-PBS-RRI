@@ -8,13 +8,25 @@ data class AllWarungResponse(
 	val metadata: Metadata? = null,
 
 	@field:SerializedName("data")
-	val data: List<DataItem> = emptyList()
+	val data: List<DataItem?>? = null
 )
 
 data class Penjual(
 
 	@field:SerializedName("username")
 	val username: String? = null
+)
+
+data class Metadata(
+
+	@field:SerializedName("error")
+	val error: Int? = null,
+
+	@field:SerializedName("message")
+	val message: String? = null,
+
+	@field:SerializedName("status")
+	val status: Int? = null
 )
 
 data class DataItem(
