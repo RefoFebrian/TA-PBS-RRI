@@ -1,5 +1,8 @@
 ## Getting Started
 
+## Dokumentasi POSTMAN
+https://github.com/RefoFebrian/TA-PBS-RRI/edit/master/Backend/README.md
+
 First, run the development server:
 Masuk folder Backend
 
