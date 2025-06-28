@@ -1,94 +1,58 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import { useEffect, useState } from 'react'
-
-interface Warung {
-  id: number
-  nama: string
-  alamat: string
-  jam_buka: string
-  jam_tutup: string
-  image: string
-  no_telp: string
-  penjual: { username: string }
-}
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function WarungPage() {
-  const [warungs, setWarungs] = useState<Warung[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [warungs, setWarungs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchWarung = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/warung') // sesuaikan jika pakai domain lain
+        const res = await fetch("http://localhost:3000/api/warung");
+        const result = await res.json();
 
-        const contentType = res.headers.get("content-type")
-        if (!res.ok) {
-          setError(`Server error: ${res.status}`)
-          return
-        }
-
-        if (contentType && contentType.includes("application/json")) {
-          const data = await res.json()
-          console.log("RESPON API:", data)
-
-          if (Array.isArray(data.data)) {
-            setWarungs(data.data) //  ambil array dari key "data"
-          } else {
-            setError("Format data API tidak sesuai")
-          }
+        if (result.metadata.error === 0) {
+          setWarungs(result.data);
         } else {
-          const text = await res.text()
-          setError(`Respon bukan JSON: ${text}`)
+          toast.error(result.metadata.message || "Gagal memuat warung");
         }
-      } catch (err: any) {
-        console.error("Fetch error:", err)
-        setError("Terjadi kesalahan saat mengambil data")
+      } catch (error) {
+        console.error(error);
+        toast.error("Gagal mengambil data dari server");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchWarung()
-  }, [])
+    fetchWarung();
+  }, []);
+
+  if (loading) return <p className="p-4">Memuat data warung...</p>;
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Daftar Warung</h1>
-
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      {!loading && !error && warungs.length === 0 && (
-        <p>Belum ada warung.</p>
-      )}
-
-      {!loading && !error && warungs.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {warungs.map((warung) => (
-            <div key={warung.id} className="bg-white rounded shadow p-4">
-              <Image
-                src={warung.image}
-                alt={warung.nama}
-                width={400}
-                height={250}
-                className="rounded object-cover mb-3"
-              />
-              <h2 className="font-semibold text-lg">{warung.nama}</h2>
-              <p className="text-gray-600 text-sm">{warung.alamat}</p>
-              <p className="text-gray-600 text-sm">
-                Jam: {warung.jam_buka} - {warung.jam_tutup}
-              </p>
-              <p className="text-gray-600 text-sm">Telp: {warung.no_telp}</p>
-              <p className="text-gray-600 text-sm italic">
-                Penjual: {warung.penjual.username}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+  <h1 className="text-2xl font-bold mb-4 text-gray-900">Daftar Warung</h1>
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    {warungs.map((warung: any) => (
+      <div key={warung.id} className="border p-4 rounded shadow bg-white text-gray-800">
+        <Image
+          src={warung.image}
+          alt={warung.nama}
+          width={400}
+          height={200}
+          className="rounded object-cover"
+        />
+        <h2 className="text-lg font-semibold">{warung.nama}</h2>
+        <p>Alamat: {warung.alamat}</p>
+        <p>Penjual: {warung.user?.username || "Tidak diketahui"}</p>
+        <p>Jam: {warung.jam_buka} - {warung.jam_tutup}</p>
+        <p>No. Telp: {warung.no_telp}</p>
+      </div>
+    ))}
+  </div>
+</div>
+  );
 }

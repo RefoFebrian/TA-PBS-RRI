@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -17,6 +17,37 @@ export default function TambahWarungPage() {
   });
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // ⬇️ Ambil user info dari token di localStorage
+  useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        if (data.user) {
+          setForm((prev) => ({
+            ...prev,
+            penjualId: data.user.id, // Isi otomatis penjualId
+          }));
+        } else {
+          toast.error("Gagal mendapatkan data pengguna");
+        }
+      } catch (err) {
+        console.error("Error ambil user:", err);
+        toast.error("Tidak bisa mengambil info pengguna");
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -47,13 +78,21 @@ export default function TambahWarungPage() {
         body: formData,
       });
 
-      const result = await res.json();
+      const contentType = res.headers.get("content-type");
+      if (!res.ok || !contentType?.includes("application/json")) {
+        const text = await res.text();
+        toast.error("Gagal mengirim: " + text.slice(0, 50));
+        return;
+      }
 
-      if (result.status === 0) {
-        toast.success("Warung berhasil dibuat!");
+      const result = await res.json();
+      console.log("RESPON BACKEND:", result);
+
+      if (result.metadata.error === 0) {
+        toast.success(result.metadata.message || "Warung berhasil dibuat!");
         router.push("/dashboard/warung");
       } else {
-        toast.error(result.message || "Gagal menambahkan warung");
+        toast.error(result.metadata.message || "Gagal menambahkan warung");
       }
     } catch (err) {
       console.error(err);
@@ -65,16 +104,12 @@ export default function TambahWarungPage() {
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded shadow text-black">
-      <h1 className="text-xl font-bold mb-4 ">Tambah Warung</h1>
+      <h1 className="text-xl font-bold mb-4">Tambah Warung</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="penjualId"
-          placeholder="ID Penjual"
-          onChange={handleChange}
-          required
-          className="w-full border px-3 py-2 rounded"
-        />
+        {/* penjualId disembunyikan dari input */}
+        <input type="hidden" name="penjualId" value={form.penjualId} />
+
         <input
           name="nama"
           placeholder="Nama Warung"
