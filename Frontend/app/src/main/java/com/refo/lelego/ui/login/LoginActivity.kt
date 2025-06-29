@@ -81,12 +81,16 @@ class LoginActivity : AppCompatActivity() {
                             setTitle("Hore")
                             setMessage("Berhasil untuk login")
                             setPositiveButton("Ok") { _, _ ->
+                                val token = result.data.data?.token ?: ""
+                                val userId = result.data.data?.user?.id ?: ""
+                                val usernameFromApi = result.data.data?.user?.username ?: username
                                 saveSession(
                                     UserModel(
-                                        username = username,
-                                        result.data.data.token,
+                                        username = usernameFromApi,
+                                        token = token,
                                         password = password,
-                                        true
+                                        isLogin = true,
+                                        userId = userId
                                     )
                                 )
                             }

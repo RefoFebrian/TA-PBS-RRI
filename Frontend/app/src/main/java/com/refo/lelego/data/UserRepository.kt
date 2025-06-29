@@ -13,8 +13,11 @@ import android.util.Log
 import com.refo.lelego.data.pref.UserModel
 import com.refo.lelego.data.response.LoginRequest
 import com.refo.lelego.data.response.LoginResponse
+import com.refo.lelego.data.response.OrderRequest
+import com.refo.lelego.data.response.OrderResponse
 import com.refo.lelego.data.response.WarungDetailData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class UserRepository(
     private val apiService: ApiService,
@@ -139,7 +142,7 @@ class UserRepository(
         }
     }
 
-    fun getWarungDetail(id: Int): LiveData<ResultAnalyze<WarungDetailData>> = liveData {
+    fun getWarungDetail(id: Int): Flow<ResultAnalyze<WarungDetailData>> = flow {
         emit(ResultAnalyze.Loading)
         try {
             val response = apiService.getWarungById(id)
@@ -155,6 +158,30 @@ class UserRepository(
         } catch (e: Exception) {
             Log.e("UserRepository", "Error fetching warung detail: ${e.message}", e)
             emit(ResultAnalyze.Error(e.message ?: "Gagal mengambil detail warung."))
+        }
+    }
+
+    suspend fun createOrder(orderRequest: OrderRequest): ResultAnalyze<OrderResponse> {
+        return try {
+            val response = apiService.createOrder(orderRequest)
+            ResultAnalyze.Success(response)
+        } catch (e: HttpException) {
+            val httpCode = e.code()
+            var specificMessage: String? = null
+            try {
+                val errorJsonString = e.response()?.errorBody()?.string()
+                if (errorJsonString != null) {
+                    val fullErrorResponse = Gson().fromJson(errorJsonString, FullErrorResponse::class.java)
+                    specificMessage = fullErrorResponse.metadata?.message
+                }
+            } catch (jsonException: Exception) {
+                Log.e("UserRepository", "Failed to parse error JSON for order creation: ${jsonException.message}", jsonException)
+            }
+            val finalErrorMessage = specificMessage ?: (e.message() ?: "Terjadi kesalahan saat membuat pesanan.")
+            ResultAnalyze.Error(finalErrorMessage)
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Unexpected error creating order: ${e.message}", e)
+            ResultAnalyze.Error(e.message ?: "An unexpected error occurred during order creation.")
         }
     }
 

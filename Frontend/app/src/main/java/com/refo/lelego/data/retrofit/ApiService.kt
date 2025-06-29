@@ -4,6 +4,8 @@ import com.refo.lelego.data.response.AllWarungResponse
 import com.refo.lelego.data.response.DetailWarungResponse
 import com.refo.lelego.data.response.LoginRequest
 import com.refo.lelego.data.response.LoginResponse
+import com.refo.lelego.data.response.OrderRequest
+import com.refo.lelego.data.response.OrderResponse
 import com.refo.lelego.data.response.RegisterRequest
 import com.refo.lelego.data.response.RegisterResponse
 import retrofit2.http.Body
@@ -29,4 +31,7 @@ interface ApiService {
     suspend fun getWarungById(
         @Path("id") id: Int
     ): DetailWarungResponse
+
+    @POST("/api/pesanan")
+    suspend fun createOrder(@Body request: OrderRequest): OrderResponse
 }
