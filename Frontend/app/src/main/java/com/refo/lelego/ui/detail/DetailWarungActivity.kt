@@ -1,5 +1,6 @@
 package com.refo.lelego.ui.detail
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.refo.lelego.data.ResultAnalyze
 import com.refo.lelego.data.adapter.MenuListAdapter
+import com.refo.lelego.data.response.WarungDetailData
 import com.refo.lelego.databinding.ActivityDetailWarungBinding
 import com.refo.lelego.ui.ViewModelFactory
 import android.widget.Toast
@@ -17,6 +19,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.refo.lelego.ui.payment.OrderPaymentActivity
 
 class DetailWarungActivity : AppCompatActivity() {
 
@@ -27,6 +30,7 @@ class DetailWarungActivity : AppCompatActivity() {
 
     private lateinit var menuAdapter: MenuListAdapter
     private var currentWarungId: Int? = null
+    private var currentWarungData: WarungDetailData? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +44,8 @@ class DetailWarungActivity : AppCompatActivity() {
             viewModel.setMenuQuantity(menuItem, quantity)
         }
 
-        binding.rvWarungMenu.layoutManager = LinearLayoutManager(this) //
-        binding.rvWarungMenu.adapter = menuAdapter //
+        binding.rvWarungMenu.layoutManager = LinearLayoutManager(this)
+        binding.rvWarungMenu.adapter = menuAdapter
 
 
         val warungId = intent.getIntExtra(EXTRA_WARUNG_ID, -1)
@@ -67,6 +71,7 @@ class DetailWarungActivity : AppCompatActivity() {
                     binding.bottomOrderContainer.visibility = View.VISIBLE
 
                     val warung = result.data
+                    currentWarungData = warung
                     if (warung != null) {
                         Glide.with(this)
                             .load(warung.image)
@@ -94,8 +99,8 @@ class DetailWarungActivity : AppCompatActivity() {
         }
 
         viewModel.menuQuantities.observe(this) { quantitiesMap ->
-            quantitiesMap.forEach { (id, quantity) ->
-                menuAdapter.updateQuantity(id, quantity)
+            quantitiesMap.forEach { (idKey, quantity) ->
+                menuAdapter.updateQuantity(idKey, quantity)
             }
         }
 
@@ -133,11 +138,20 @@ class DetailWarungActivity : AppCompatActivity() {
             when (result) {
                 is ResultAnalyze.Loading -> {
                     binding.btnCreateOrder.isEnabled = false
+                    binding.progressBarDetail.visibility = View.VISIBLE
                 }
                 is ResultAnalyze.Success -> {
                     binding.btnCreateOrder.isEnabled = true
-                    Toast.makeText(this, result.data?.metadata?.message ?: "Pesanan berhasil dibuat!", Toast.LENGTH_LONG).show()
-                    val currentWarungData = (viewModel.warungDetail.value as? ResultAnalyze.Success)?.data
+                    val orderResponseData = result.data?.data
+                    if (orderResponseData != null && currentWarungData != null) {
+                        val intent = Intent(this@DetailWarungActivity, OrderPaymentActivity::class.java)
+                        intent.putExtra(OrderPaymentActivity.EXTRA_ORDER_DATA, orderResponseData)
+                        intent.putExtra(OrderPaymentActivity.EXTRA_WARUNG_DATA, currentWarungData)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Gagal mendapatkan detail pesanan atau data warung.", Toast.LENGTH_LONG).show()
+                    }
                     currentWarungData?.menu?.filterNotNull()?.forEach { menuItem ->
                         viewModel.setMenuQuantity(menuItem, 0)
                     }
